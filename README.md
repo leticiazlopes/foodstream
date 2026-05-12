@@ -74,3 +74,6 @@ As mensagens trafegam via Sockets TCP encapsuladas em formato **JSON**, seguindo
   "mensagem": "conteúdo da mensagem ou dados do erro"
 }
 ```
+
+## Equipe
+Desenvolvido por Laila de Aquino e Letícia Lopes para a disciplina de Programação Distribuída em 2026.
