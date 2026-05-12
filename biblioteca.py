@@ -3,6 +3,9 @@ import threading
 import queue
 import json
 from mensagem import Mensagem
+import logging
+
+logging.basicConfig(level=logging.INFO)
 
 class Biblioteca:
     def __init__(self):
@@ -27,7 +30,7 @@ class Biblioteca:
                 
                 threading.Thread(target=self._escutar_servidor, args=(sock,), daemon=True).start()
             except Exception as e:
-                print(f"❌ Erro ao conectar no Broker da porta {porta}: {e}")
+                logging.error(f"❌ Erro ao conectar no Broker da porta {porta}: {e}")
                 return None
         return self.conexoes.get(porta)
 
@@ -40,7 +43,7 @@ class Biblioteca:
             
             sock.send(msg.prepara_json() + b'\n')
         else:
-            print(f"⚠️ Falha na inscrição: Broker {porta} offline.")
+            logging.warning(f"⚠️ Falha na inscrição: Broker {porta} offline.")
 
     def publicar(self, topico, conteudo):
         porta = self._definir_broker(topico)
