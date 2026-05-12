@@ -3,7 +3,7 @@ import json
 
 
 class Mensagem:
-    def __init__(self, operacao, topico, mensagem):
+    def __init__(self, operacao, topico, mensagem=""):
         self.operacao = operacao #quero pizza ou avisar que está pronta
         self.topico = topico
         self.mensagem = mensagem
