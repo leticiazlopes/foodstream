@@ -40,4 +40,5 @@ try:
 
         time.sleep(0.5) 
 except KeyboardInterrupt:
+    app.cancelar_inscricao("ofertas/diaria")
     print("\n[INFO] Painel de ofertas encerrado.")

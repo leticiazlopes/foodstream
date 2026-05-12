@@ -76,3 +76,14 @@ class Biblioteca:
             return self.fila_mensagens.get_nowait()
         except queue.Empty:
             return None
+        
+    def cancelar_inscricao(self, topico):
+        porta = self._definir_broker(topico)
+        sock = self._conectar_ao_broker(porta)
+        
+        if sock:
+            msg = Mensagem("remocao", topico)
+            sock.send(msg.prepara_json() + b'\n')
+            logging.info(f"🚪 Inscrição removida do tópico: {topico}")
+        else:
+            logging.warning(f"⚠️ Falha na remoção: Broker {porta} offline.")

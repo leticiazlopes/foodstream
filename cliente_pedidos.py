@@ -19,4 +19,6 @@ try:
             print(f"\n[🔔 {origem}] {n.mensagem}")
         time.sleep(0.5)
 except KeyboardInterrupt:
+    app.cancelar_inscricao("pedido/123")
+    app.cancelar_inscricao("entrega/status")
     print("\n[INFO] App do cliente fechado.")
