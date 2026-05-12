@@ -21,7 +21,7 @@ O projeto utiliza **Sockets TCP** e threads para garantir que a troca de mensage
 * `biblioteca.py`: A camada de abstração (API) usada pelas aplicações.
 * `restaurante.py`: Publicador de pedidos e promoções.
 * `entregador.py`: Publicador de status de GPS e avisos de suporte.
-* `cliente.py`: Aplicativo do usuário que acompanha o pedido e a entrega.
+* `cliente_pedidos.py`: Aplicativo do usuário que acompanha o pedido e a entrega.
 * `cliente_marketing.py`: Painel que exibe ofertas relâmpago.
 
 ---
@@ -45,13 +45,13 @@ Para demonstrar a capacidade total do middleware (2 Brokers, 2 Publicadores, 2 I
 
 ### 1. Inicie os Brokers
 ```bash
-python3 centralBroker.py 8080
+python3 centralBroker.py 
 python3 centralBroker.py 8081
 ```
 
 ### 2. Inicie os Inscritos (Clientes)
 ```bash
-python3 cliente.py             # Ouve 'pedido/123' e 'entrega/status'
+python3 cliente_pedidos.py             # Ouve 'pedido/123' e 'entrega/status'
 python3 cliente_marketing.py   # Ouve 'ofertas/diaria'
 ```
 
