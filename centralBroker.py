@@ -1,7 +1,12 @@
-#cérebro da aplicação
+
+from queue import Queue
 import socket
 import threading
 from mensagem import Mensagem
+import logging
+import sys
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
 class CentralBroker:
@@ -9,11 +14,12 @@ class CentralBroker:
         self.topicos = {} 
         self.lock = threading.Lock()
         
-    def iniciar(self, porta=5000):
+    def iniciar(self, porta=8080):
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         server.bind(('localhost', porta))
         server.listen()
-        print("Central Broker ouvindo ")
+        logging.info(f"Central Broker ouvindo na porta {porta}")
         
         while True:
             conexao, addr = server.accept()
@@ -30,24 +36,42 @@ class CentralBroker:
                         if msg.topico not in self.topicos:
                             self.topicos[msg.topico] = []
                         self.topicos[msg.topico].append(conexao)
-                    print(f"Cliente inscrito no tópico {msg.topico}")
+                    logging.info(f"Cliente inscrito no tópico {msg.topico}")
                 
                 elif msg.operacao == "publicacao":
+                    logging.info(f"📩 PUBLICAÇÃO RECEBIDA")
+                    logging.info(f"   ┃ Tópico: {msg.topico}")
+                    logging.info(f"   ┃ Conteúdo: {msg.mensagem}") 
+                    
                     if msg.topico in self.topicos:
                         lista_inscritos = self.topicos[msg.topico]
+                        contagem_envios = 0
                         
-                        if len(lista_inscritos) > 0:
-                            for inscrito in lista_inscritos:
+                        for inscrito in list(lista_inscritos):
+                            if inscrito == conexao:
+                                continue 
+                                
+                            try:
                                 inscrito.send(dados_brutos)
-                        else:
-                            conexao.send("Ninguém inscrito nesse tópico".encode('utf-8'))
+                                contagem_envios += 1
+                            except:
+                                self.topicos[msg.topico].remove(inscrito)
+                        
+                        logging.info(f"   ┗━ ✅ Repassado para {contagem_envios} interessado(s).")
                     else:
-                        conexao.send("Tópico não encontrado".encode('utf-8'))
+                        logging.warning(f"   ┗━ ⚠️ Nenhum inscrito no tópico {msg.topico}")
+                        erro_msg = Mensagem("erro", msg.topico, f"Tópico '{msg.topico}' não possui inscritos. Mensagem descartada.")
+                        conexao.send(erro_msg.prepara_json() + b'\n')
                 
                 elif msg.operacao == "remocao":
                     with self.lock:
                         if msg.topico in self.topicos:
                             self.topicos[msg.topico].remove(conexao)
-                            if not self.topicos[msg.topico]: #n tem ng, apaga tópico
+                            if not self.topicos[msg.topico]: 
                                 del self.topicos[msg.topico]
             conexao.close()
+            
+if __name__ == "__main__":
+    porta_escolhida = int(sys.argv[1]) if len(sys.argv) > 1 else 8080
+    broker = CentralBroker()
+    broker.iniciar(porta=porta_escolhida)
